@@ -1,0 +1,73 @@
+---
+layout: runbook
+title: '#4471 review · split causes before merging reports'
+owner: gawarz and Codex
+status: reviewed
+reviewed: '2026-11-03'
+signature: 'Codex / gawarz / S01E03 / 2026-11-03'
+---
+
+<script>
+  import CauseTable from '#lib/kb/CauseTable.svelte';
+  import QueueTimeline from '#lib/kb/QueueTimeline.svelte';
+  import ReviewEvidence from '#lib/kb/ReviewEvidence.svelte';
+  import DedupeExplorer from '#lib/kb/DedupeExplorer.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+</script>
+
+This review checks [the original incident page](/kb/incidents/4471/) against the exported
+reports and the components that render them. Its “one issue, one fix queued” statement does
+not match the computed cause table. Intake tags and matching subjects are not reliable
+substitutes for tenant context.
+
+<Callout kind="warn">
+Distinct causes share #4471. Keep a separate engineering ticket for each. The tables below
+compute their counts from unique report IDs at build time, so this page describes the export,
+not an assertion about the current live support queue.
+</Callout>
+
+## Separate engineering work
+
+<CauseTable ticket={4471} />
+
+### Parser: month-first parsing for day-first tenants
+
+The shared parser reads dates month first even when the tenant's locale uses day first.
+Ambiguous dates can swap month and day. Scope is determined by `causeOf` in
+`src/lib/kb/causes.ts`, using the tenant directory and channel, not `meta.intakeTag`.
+Preserve the tenant's date interpretation throughout booking, invite and reminder handling.
+
+### Hint: booking-v3 prints a month-first example for day-first tenants
+
+The booking-v3 date field advertises `MM/DD/YYYY` while the form reads a day-first tenant's
+entry in the tenant's order. Users following the hint get a wrong result through a distinct
+input path. Align the visible hint with the form's parsing contract; a shared-parser fix
+alone does not demonstrate that this form defect is fixed.
+
+<ReviewEvidence />
+
+<QueueTimeline ticket={4471} />
+
+## Triage by evidence
+
+[Decision 0001](/kb/decisions/0001-dedupe-by-subject/) is an accepted historical record from
+2024. It must remain intact. The [triage page](/kb/triage/dedupe/) still repeats its
+subject-only rule, while the running explorer compares causes. Re-read that stale guidance
+before relying on it and propose a replacement decision rather than editing the accepted
+record.
+
+The explorer demonstrates why different subjects can share a cause, and why the same subject
+can cover different causes. For each new report, check the tenant, locale, form version,
+channel and described behavior. Missing tenant context means “unplaced,” not “duplicate.”
+
+<DedupeExplorer />
+
+## Follow-up and limits
+
+Rebuild against a newer export when it arrives and update each engineering ticket's count
+from the unique IDs for its cause. Keep the flagged bodies attached for investigation.
+This export establishes how the supplied classifier groups the queue; it does not establish
+the outcome of a fix, the latest queue total, or the root cause of every anomalous body.
+
+<RenderStamp {signature} />
