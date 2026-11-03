@@ -49,8 +49,10 @@ reports. These are counts for the exported snapshot. Fifteen overlapping rows ar
 ID. Five one-day-move reports remain visible with their classification limits explained.
 The review's numeric tables and charts compute from the supplied data and functions.
 
-The review signature is `Codex / gawarz / S01E03 / 2026-11-03`; the supplied `deskRef` function
-derives `DR-CJ3C-26HY` from it. No accepted decision record was edited.
+The review's frontmatter carries the exact course-issued ticket as its signature. The supplied
+`deskRef` function derives the rendered stamp from that signature; the analysis script reads
+the signature from the page rather than defining another one. No accepted decision record
+was edited.
 
 ### Reproduce
 

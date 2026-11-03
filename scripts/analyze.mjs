@@ -20,12 +20,13 @@ assert.equal(groups.reduce((n, g) => n + g.reports.length, 0), reports.length);
 assert(groups.every(g => g.cause !== 'unplaced'));
 const byId = new Map(rows.map(r => [r.id, r]));
 for (const r of rows) assert.deepEqual(r, byId.get(r.id));
-const signature = 'Codex / gawarz / S01E03 / 2026-11-03';
+const page = await readFile(new URL('../src/routes/kb/incidents/4471-review/+page.svx', import.meta.url), 'utf8');
+const signature = page.match(/^signature: '([^']+)'$/m)?.[1];
+assert(signature, 'The review page must carry its course-issued signature');
 const result = {
   exportedRows: rows.length,
   uniqueReports: reports.length,
   overlappingRows: rows.length - reports.length,
-  signature,
   deskRef: deskRef(signature),
   tenants: [...tenants.values()].map(t => ({ ...t, dayFirst: dayFirst(t.locale) })),
   mismatchedIntakeTags: reports.filter(r => causeOf(r, tenants.get(r.tenant)) !== r.meta.intakeTag).length,
